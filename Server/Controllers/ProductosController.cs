@@ -12,58 +12,58 @@ namespace Abraham_API1_P2.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EntradasController : ControllerBase
+    public class ProductosController : ControllerBase
     {
         private readonly Context _context;
 
-        public EntradasController(Context context)
+        public ProductosController(Context context)
         {
             _context = context;
         }
 
-        // GET: api/Entradas
+        // GET: api/Productos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Entradas>>> GetEntrada()
+        public async Task<ActionResult<IEnumerable<Productos>>> GetProductos()
         {
-          if (_context.Entrada == null)
+          if (_context.Productos == null)
           {
               return NotFound();
           }
-            return await _context.Entrada.ToListAsync();
+            return await _context.Productos.ToListAsync();
         }
 
-        // GET: api/Entradas/5
+        // GET: api/Productos/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Entradas>> GetEntradas(int id)
+        public async Task<ActionResult<Productos>> GetProductos(int id)
         {
-          if (_context.Entrada == null)
+          if (_context.Productos == null)
           {
               return NotFound();
           }
-             var entradas = await _context.Entrada
-            .Where(e => e.EntradaId == id).Include(e => e.EntradasDetalle)
+            var productos = await _context.Productos
+            .Where(e => e.ProductoId == id)
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-            if (entradas == null)
+            if (productos == null)
             {
                 return NotFound();
             }
 
-            return entradas;
+            return productos;
         }
 
-        // PUT: api/Entradas/5
+        // PUT: api/Productos/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEntradas(int id, Entradas entradas)
+        public async Task<IActionResult> PutProductos(int id, Productos productos)
         {
-            if (id != entradas.EntradaId)
+            if (id != productos.ProductoId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(entradas).State = EntityState.Modified;
+            _context.Entry(productos).State = EntityState.Modified;
 
             try
             {
@@ -71,7 +71,7 @@ namespace Abraham_API1_P2.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EntradasExists(id))
+                if (!ProductosExists(id))
                 {
                     return NotFound();
                 }
@@ -84,44 +84,44 @@ namespace Abraham_API1_P2.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/Entradas
+        // POST: api/Productos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Entradas>> PostEntradas(Entradas entradas)
+        public async Task<ActionResult<Productos>> PostProductos(Productos productos)
         {
-            if (!EntradasExists(entradas.EntradaId))
-                _context.Entrada.Add(entradas);
+            if (!ProductosExists(productos.ProductoId))
+                _context.Productos.Add(productos);
             else
-                _context.Entrada.Update(entradas);
+                _context.Productos.Update(productos);
 
             await _context.SaveChangesAsync();
 
-            return Ok(entradas);
+            return Ok(productos);
         }
 
-        // DELETE: api/Entradas/5
+        // DELETE: api/Productos/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEntradas(int id)
+        public async Task<IActionResult> DeleteProductos(int id)
         {
-            if (_context.Entrada == null)
+            if (_context.Productos == null)
             {
                 return NotFound();
             }
-            var entradas = await _context.Entrada.FindAsync(id);
-            if (entradas == null)
+            var productos = await _context.Productos.FindAsync(id);
+            if (productos == null)
             {
                 return NotFound();
             }
 
-            _context.Entrada.Remove(entradas);
+            _context.Productos.Remove(productos);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool EntradasExists(int id)
+        private bool ProductosExists(int id)
         {
-            return (_context.Entrada?.Any(e => e.EntradaId == id)).GetValueOrDefault();
+            return (_context.Productos?.Any(e => e.ProductoId == id)).GetValueOrDefault();
         }
     }
 }

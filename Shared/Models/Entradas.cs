@@ -24,7 +24,5 @@ namespace Abraham_API1_P2.Shared.Models
 
         [ForeignKey("EntradaId")]
         public ICollection<EntradasDetalle> EntradasDetalle { get; set; } = new List<EntradasDetalle>();
-
-
     }
 }
