@@ -15,7 +15,6 @@ namespace Abraham_API1_P2.Shared.Models
 
         public int EntradaId { get; set; }
 
-        [ForeignKey("ProductoId")]
         [Required(ErrorMessage = "Es obligatorio introducir el producto que desea.")]
         public int ProductoId { get; set; }
 
