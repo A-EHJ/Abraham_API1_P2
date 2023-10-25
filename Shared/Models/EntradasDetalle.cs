@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Abraham_API1_P2.Shared.Models
 {
-    internal class EntradasDetalle
+    public class EntradasDetalle
     {
         [Key]
         public int DetalleId { get; set; }

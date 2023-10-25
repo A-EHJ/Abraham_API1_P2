@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Abraham_API1_P2.Shared.Models
 {
-    internal class Productos
+    public class Productos
     {
         [Key]
         public int ProductoId { get; set; }
