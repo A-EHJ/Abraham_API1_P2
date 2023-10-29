@@ -40,10 +40,10 @@ namespace Abraham_API1_P2.Server.Controllers
           {
               return NotFound();
           }
-             var entradas = await _context.Entrada
-            .Where(e => e.EntradaId == id).Include(e => e.EntradasDetalle)
-            .AsNoTracking()
-            .FirstOrDefaultAsync();
+            var entradas = await _context.Entrada
+                .Include(e => e.EntradasDetalle)
+                .Where(e => e.EntradaId == id)
+                .FirstOrDefaultAsync();
 
             if (entradas == null)
             {

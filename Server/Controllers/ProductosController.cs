@@ -40,10 +40,7 @@ namespace Abraham_API1_P2.Server.Controllers
           {
               return NotFound();
           }
-            var productos = await _context.Productos
-            .Where(e => e.ProductoId == id)
-            .AsNoTracking()
-            .FirstOrDefaultAsync();
+            var productos = await _context.Productos.FindAsync(id);
 
             if (productos == null)
             {

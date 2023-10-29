@@ -17,10 +17,11 @@ namespace Abraham_API1_P2.Shared.Models
         public string? Descripción { get; set; }
 
         [Required(ErrorMessage = "Es obligatorio introducir el tipo del producto.")]
+        [Range(0, 1, ErrorMessage = "El tipo debe ser Fruto seco(0) o Mixto(1).")]
         public int Tipo { get; set; }
 
         [Required(ErrorMessage = "Es obligatorio introducir la Existensia del producto.")]
-        [Range(1, long.MaxValue, ErrorMessage = "La Existensia debe ser mayor que 0.")]
-        public long Existensia { get; set; }
+        [Range(1, double.MaxValue, ErrorMessage = "La Existensia debe ser mayor que 0.")]
+        public double Existencia { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Abraham_API1_P2.Server.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Abraham_API1_P2.Server.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20231027234854_Tercera_CambiandoTipoDeDatoEnProductos")]
+    partial class Tercera_CambiandoTipoDeDatoEnProductos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.13");
@@ -76,7 +79,7 @@ namespace Abraham_API1_P2.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<double>("Existencia")
+                    b.Property<double>("Existensia")
                         .HasColumnType("REAL");
 
                     b.Property<int>("Tipo")
@@ -91,56 +94,56 @@ namespace Abraham_API1_P2.Server.Migrations
                         {
                             ProductoId = 1,
                             Descripción = "Maní",
-                            Existencia = 500.0,
+                            Existensia = 500.0,
                             Tipo = 0
                         },
                         new
                         {
                             ProductoId = 2,
                             Descripción = "Pistacho",
-                            Existencia = 500.0,
+                            Existensia = 500.0,
                             Tipo = 0
                         },
                         new
                         {
                             ProductoId = 3,
                             Descripción = "Pasas",
-                            Existencia = 500.0,
+                            Existensia = 500.0,
                             Tipo = 0
                         },
                         new
                         {
                             ProductoId = 4,
                             Descripción = "Ciruelas",
-                            Existencia = 500.0,
+                            Existensia = 500.0,
                             Tipo = 0
                         },
                         new
                         {
                             ProductoId = 5,
                             Descripción = "Arándanos",
-                            Existencia = 500.0,
+                            Existensia = 500.0,
                             Tipo = 0
                         },
                         new
                         {
                             ProductoId = 6,
                             Descripción = "Mixto MPP 0.5L lb",
-                            Existencia = 0.0,
+                            Existensia = 0.0,
                             Tipo = 1
                         },
                         new
                         {
                             ProductoId = 7,
                             Descripción = "Mixto MPC 0.5L lb",
-                            Existencia = 0.0,
+                            Existensia = 0.0,
                             Tipo = 1
                         },
                         new
                         {
                             ProductoId = 8,
-                            Descripción = "Mixto MPP 0.2L lb",
-                            Existencia = 0.0,
+                            Descripción = "Mixto MPp 0.2L lb",
+                            Existensia = 0.0,
                             Tipo = 1
                         });
                 });
