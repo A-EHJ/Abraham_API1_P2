@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abraham_API1_P2.Server", "Server\Abraham_API1_P2.Server.csproj", "{F25F673F-ECCB-4F57-A26C-AA41ABC8FD05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abraham_API1_P2.Server", "Server\Abraham_API1_P2.Server.csproj", "{F25F673F-ECCB-4F57-A26C-AA41ABC8FD05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abraham_API1_P2.Client", "Client\Abraham_API1_P2.Client.csproj", "{58B052A1-E7C0-41B8-9C5F-55B4097BFB1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abraham_API1_P2.Client", "Client\Abraham_API1_P2.Client.csproj", "{58B052A1-E7C0-41B8-9C5F-55B4097BFB1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abraham_API1_P2.Shared", "Shared\Abraham_API1_P2.Shared.csproj", "{ED3FEB05-8967-48EF-BF32-5F7EC7F0C926}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abraham_API1_P2.Shared", "Shared\Abraham_API1_P2.Shared.csproj", "{ED3FEB05-8967-48EF-BF32-5F7EC7F0C926}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
