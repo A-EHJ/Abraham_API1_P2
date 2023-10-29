@@ -1,0 +1,164 @@
+﻿@page "/Registrar/Productos"
+@page "/Registrar/Productos/{ProductoId:int}"
+@using System.Text.RegularExpressions;
+@using Abraham_API1_P2.Shared.Models;
+@inject NotificationService notificationService
+@inject HttpClient httpClient
+
+<PageTitle>Registrar Entradas</PageTitle>
+
+<EditForm Model="producto" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h3 class="text-center">Registrar Productos</h3>
+            </div>
+            <div class=card-body>
+                @*ProductoId*@
+                <div class="d-inline-block">
+                    <label>ProductoId</label>
+                    <div class="input-group mb-3">
+                        <InputNumber @bind-Value="producto.ProductoId" class="form-control" aria-describedby="BotonBuscar" />
+                        <button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="BotonBuscar"><i class="oi oi-magnifying-glass" /></button>
+                    </div>
+                </div>
+
+                @*Tipo*@
+                <div class="mb-3 col-3 d-inline-block">
+                    <label class="form-label">Tipo</label>
+                    <InputSelect class="form-select" @bind-Value="producto.Tipo">
+                        <option value="-1" disabled selected> [Seleccione] </option>
+                        <option value="0"> Fruto Seco </option>
+                        <option value="1" >Mixto</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => producto.Tipo)" />
+                </div>
+
+                @*Descripción*@
+                <div class="mb-3">
+                    <label class="form-label">Descripci&oacute;n</label>
+                    <InputText @bind-Value="producto.Descripción" class="form-control" placeholder="Nombre y Apellido" />
+                    <ValidationMessage For="@(() => producto.Descripción)" />
+                </div>
+
+                @*Existencia*@
+                <div class="mb-3">
+                    <label class="form-label">Existencia</label>
+                    <InputNumber @bind-Value="producto.Existencia" class="form-control" placeholder="Observación" />
+                    <ValidationMessage For="@(() => producto.Existencia)" />
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-center">
+            <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+            <button type="submit" class="btn btn-outline-success">Guardar <i class="oi oi-document" /></button>
+            <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"> Eliminar <i class="oi oi-trash" /></button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int ProductoId { get; set; }
+
+    public Productos producto { get; set; } = new Productos();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (this.ProductoId > 0)
+        {
+            this.producto.ProductoId = this.ProductoId;
+            Buscar();
+        }
+    }
+
+    public void Nuevo()
+    {
+        this.producto = new Productos();
+    }
+
+    public async Task Buscar()
+    {
+        var ProductoEncontrado = await httpClient.GetFromJsonAsync<Productos>($"api/Productos/{producto.ProductoId}");
+        if (ProductoEncontrado != null)
+        {
+            this.producto = ProductoEncontrado;
+            StateHasChanged();
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "No se ha encontrado",
+                    Detail = "No se ha encontrado el Producto que estaba buscando",
+                    Duration = 4000
+                };
+            this.Nuevo();
+        }
+    }
+
+
+    public async Task Guardar()
+    {
+        var ProductoEncontrado = await httpClient.PostAsJsonAsync<Productos>($"api/Productos", producto);
+        if (!ProductoEncontrado.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "No se ha guardado el Producto",
+                    Detail = ProductoEncontrado.ReasonPhrase ?? " error",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+            return;
+
+        }
+        var ProductoDevuelto = await ProductoEncontrado.Content.ReadFromJsonAsync<Productos>();
+        if (ProductoDevuelto is not null)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Guardado",
+                    Detail = "Se ha guardado correctamente.",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+            producto = ProductoDevuelto;
+            StateHasChanged();
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        using var response = await httpClient.DeleteAsync($"api/Productos/{producto.ProductoId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "No se ha Eliminado",
+                    Detail = response.ReasonPhrase ?? "error",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+        }
+        else
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Se ha Eliminado",
+                    Detail = "Se elimino de forma correcta",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+            Nuevo();
+        }
+    }
+}
