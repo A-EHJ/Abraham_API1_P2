@@ -20,6 +20,7 @@ namespace Abraham_API1_P2.Shared.Models
         public int ProductoId { get; set; }
 
         [Required(ErrorMessage = "Es obligatorio introducir la cantidad que se produjo.")]
+        [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor que 0.")]
         public int CantidadProducida { get; set; }
 
         [ForeignKey("EntradaId")]

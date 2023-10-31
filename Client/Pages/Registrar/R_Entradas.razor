@@ -112,7 +112,7 @@
                         @*Producto *@
                         <div class="col-7">
                             <label class="form-control-label">Producto</label>  
-                            <InputSelect class="form-select" @bind-Value="ProductoSeleccionadoProducido">
+                            <InputSelect class="form-select" @bind-Value="ProductoSeleccionadoProducido" @onblur=VerificarSeleccionadoProducion>
                                 <option value="0" disabled selected> [Seleccione] </option>
                                 @foreach (var Producto in ProductosList)
                                 {
@@ -126,7 +126,7 @@
 
                         <div class="col-3">
                             <label class="form-control-label">Cantidad</label>
-                            <InputNumber @bind-Value="CantidadMixtas" class="form-control" />
+                            <InputNumber @bind-Value="Entradas.CantidadProducida" @onblur=VerificarProducido class="form-control" />
                         </div>
                     </div>
                 </fieldset>
@@ -181,7 +181,7 @@
             EntradasDetalleList = Entradas.EntradasDetalle;
             StateHasChanged();
         }
-       
+
         else
         {
             var mensaje = new NotificationMessage
@@ -199,6 +199,7 @@
     public void Nuevo()
     {
         this.Entradas = new Entradas();
+        this.Entradas.EntradasDetalle = new List<EntradasDetalle>();
     }
 
     public async Task Eliminar()
@@ -235,8 +236,8 @@
             notificationService.Notify(mensaje);
             return;
         }
-        var ticketDevuelto = await response.Content.ReadFromJsonAsync<Entradas>();
-        if (ticketDevuelto is not null)
+        var EntradaDevuelto = await response.Content.ReadFromJsonAsync<Entradas>();
+        if (EntradaDevuelto is not null)
         {
             var mensaje = new NotificationMessage
                 {
@@ -246,7 +247,7 @@
                     Duration = 4000
                 };
             notificationService.Notify(mensaje);
-            Entradas = ticketDevuelto;
+            Entradas = EntradaDevuelto;
             EntradasDetalleList = Entradas.EntradasDetalle;
             StateHasChanged();
         }
@@ -315,7 +316,7 @@
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "Cantidad no valida",
-                    Detail = "La cantidad que desea utilizar es mayor a la existente.",
+                    Detail = "La cantidad que desea utilizar es mayor a la existente. Solo quedan " + CantidadProducto(ProductoSeleccionadoUtilizado),
                     Duration = 4000
                 };
             notificationService.Notify(mensaje);
@@ -343,6 +344,183 @@
         var CantidadProducto = ProductosList.FirstOrDefault(t => t.ProductoId == tipoId);
 
         return CantidadProducto!.Existencia;
+    }
+
+    private async Task VerificarSeleccionadoProducion()
+    {
+        if (Entradas.CantidadProducida <= 0)
+        {
+            return;
+        }
+        Entradas.CantidadProducida = 0;
+        VerificarProducido();
+    }
+
+    private async Task VerificarProducido()
+    {
+        if (ProductoSeleccionadoProducido == 0)
+        {
+            return;
+        }
+        if (ProductoSeleccionadoProducido == 6)
+        {
+            if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3))
+            {
+                double SumaDeGramos = Entradas.EntradasDetalle
+                                             .Where(p => p.ProductoId == 1)
+                                             .Sum(p => p.CantidadUtilizada) + Entradas.EntradasDetalle
+                                             .Where(p => p.ProductoId == 2).Sum(p => p.CantidadUtilizada)
+                                             + Entradas.EntradasDetalle.Where(p => p.ProductoId == 3).Sum(p => p.CantidadUtilizada);
+                if (SumaDeGramos / 226.80 <= 1)
+                {
+                    var mensaje = new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Cantidad no valida",
+                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 500 gramos.",
+                            Duration = 4000
+                        };
+                    notificationService.Notify(mensaje);
+                    Entradas.CantidadProducida = 0;
+                    return;
+                }
+                else if (Entradas.CantidadProducida > SumaDeGramos / 226.80)
+                {
+                    var mensaje = new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Cantidad no valida",
+                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza.",
+                            Duration = 4000
+                        };
+                    notificationService.Notify(mensaje);
+                    int x = (int)(SumaDeGramos / 226.80);
+                    Entradas.CantidadProducida = x;
+
+                    return;
+                }
+            }
+            else
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "No se ha podido agregar",
+                        Detail = "No se ha podido agregar el producto, debe tener los productos Mani, Pasas y Pistachos.",
+                        Duration = 4000
+                    };
+                notificationService.Notify(mensaje);
+                Entradas.CantidadProducida = 0;
+                return;
+            }
+        }
+        else if (ProductoSeleccionadoProducido == 7)
+        {
+            if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) || Entradas.EntradasDetalle.Any(p => p.ProductoId == 5)))
+            {
+                double SumaDeGramos = Entradas.EntradasDetalle
+                                             .Where(p => p.ProductoId == 1)
+                                             .Sum(p => p.CantidadUtilizada) + Entradas.EntradasDetalle
+                                             .Where(p => p.ProductoId == 2).Sum(p => p.CantidadUtilizada)
+                                             + Entradas.EntradasDetalle.Where(p => p.ProductoId == 4).Sum(p => p.CantidadUtilizada) 
+                                             + Entradas.EntradasDetalle.Where(p => p.ProductoId == 5).Sum(p => p.CantidadUtilizada);
+                if ((int)(SumaDeGramos / 226.80) <= 1)
+                {
+                    var mensaje = new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Cantidad no valida",
+                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 500 gramos.",
+                            Duration = 4000
+                        };
+                    notificationService.Notify(mensaje);
+                    Entradas.CantidadProducida = 0;
+                    return;
+                }
+                else if (Entradas.CantidadProducida > (int)(SumaDeGramos / 226.80))
+                {
+                    var mensaje = new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Cantidad no valida",
+                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza.",
+                            Duration = 4000
+                        };
+                    notificationService.Notify(mensaje);
+                    int x = (int)(SumaDeGramos / 226.80);
+                    Entradas.CantidadProducida = x;
+
+                    return;
+                }
+            }
+            else
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "No se ha podido agregar",
+                        Detail = "No se ha podido agregar el producto, debe tener los productos Mani, Pasas, Ciruela o Arandano.",
+                        Duration = 4000
+                    };
+                notificationService.Notify(mensaje);
+                Entradas.CantidadProducida = 0;
+                return;
+            }
+        }
+        else if (ProductoSeleccionadoProducido == 8)
+        {
+            if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3))
+            {
+                double SumaDeGramos = Entradas.EntradasDetalle
+                                             .Where(p => p.ProductoId == 1)
+                                             .Sum(p => p.CantidadUtilizada) + Entradas.EntradasDetalle
+                                             .Where(p => p.ProductoId == 2).Sum(p => p.CantidadUtilizada)
+                                             + Entradas.EntradasDetalle.Where(p => p.ProductoId == 3).Sum(p => p.CantidadUtilizada);
+                if (SumaDeGramos / 90.72 <= 1)
+                {
+                    var mensaje = new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Cantidad no valida",
+                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 200 gramos.",
+                            Duration = 4000
+                        };
+                    notificationService.Notify(mensaje);
+                    Entradas.CantidadProducida = 0;
+                    return;
+
+                }
+                else if (Entradas.CantidadProducida > (int)(SumaDeGramos / 90.72))
+                {
+                    var mensaje = new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Cantidad no valida",
+                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza.",
+                            Duration = 4000
+                        };
+                    notificationService.Notify(mensaje);
+                    int x = (int)(SumaDeGramos / 90.72);
+                    Entradas.CantidadProducida = x;
+                    
+                    return;
+                }
+            }
+            else
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = "No se ha podido agregar",
+                        Detail = "No se ha podido agregar el producto, debe tener los productos Mani, Pasas y Pistachos.",
+                        Duration = 4000
+                    };
+                notificationService.Notify(mensaje);
+                Entradas.CantidadProducida = 0;
+                return;
+            }
+        }
+
     }
 
 }

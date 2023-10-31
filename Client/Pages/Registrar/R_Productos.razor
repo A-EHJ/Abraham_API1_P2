@@ -28,19 +28,21 @@
                 @*Tipo*@
                 <div class="mb-3 col-3 d-inline-block">
                     <label class="form-label">Tipo</label>
-                    <InputSelect class="form-select" @bind-Value="producto.Tipo">
-                        <option value="-1" disabled selected> [Seleccione] </option>
-                        <option value="0"> Fruto Seco </option>
-                        <option value="1" >Mixto</option>
-                    </InputSelect>
-                    <ValidationMessage For="@(() => producto.Tipo)" />
+                    @if (producto.Tipo == 0)
+                    {
+                        <p class="form-text">   Fruto Seco</p>
+                    }
+                    else if (producto.Tipo == 1)
+                    {
+                        <p class="form-text">   Mixto</p>
+                    }
+                    
                 </div>
 
                 @*Descripción*@
                 <div class="mb-3">
                     <label class="form-label">Descripci&oacute;n</label>
-                    <InputText @bind-Value="producto.Descripción" class="form-control" placeholder="Nombre y Apellido" />
-                    <ValidationMessage For="@(() => producto.Descripción)" />
+                    <p class="form-text">   @producto.Descripción</p>
                 </div>
 
                 @*Existencia*@
