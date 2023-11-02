@@ -97,7 +97,7 @@
                             <div class="col-4">
                                 <label>Peso Total</label>
                                 <div class="input-group mb-3">
-                                    <span class="form-control">@PesoTotal</span>
+                                    <span class="form-control">@Entradas.PesoTotal</span>
                                 </div>
                             </div>
                         </div>
@@ -112,7 +112,7 @@
                         @*Producto *@
                         <div class="col-7">
                             <label class="form-control-label">Producto</label>  
-                            <InputSelect class="form-select" @bind-Value="ProductoSeleccionadoProducido" @onblur=VerificarSeleccionadoProducion>
+                            <InputSelect class="form-select" @bind-Value="Entradas.ProductoId" @onblur=VerificarSeleccionadoProducion>
                                 <option value="0" disabled selected> [Seleccione] </option>
                                 @foreach (var Producto in ProductosList)
                                 {
@@ -150,16 +150,12 @@
     public IEnumerable<Productos> ProductosList { get; set; } = Enumerable.Empty<Productos>();
     public IEnumerable<EntradasDetalle> EntradasDetalleList { get; set; } = Enumerable.Empty<EntradasDetalle>();
 
-    public double CantidadMixtas;
-
     //Para el detalle
     public string? Descripción { get; set; }
     public int Tipo { get; set; }
     public double Cantidad { get; set; }
-    public double PesoTotal { get; set; } = 0;
 
     public int ProductoSeleccionadoUtilizado { get; set; }
-    public int ProductoSeleccionadoProducido { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -174,6 +170,21 @@
 
     public async Task Buscar()
     {
+
+        try { await httpClient.GetFromJsonAsync<Entradas>($"api/Entradas/{Entradas.EntradaId}"); }
+        catch (Exception ex)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "No se ha encontrado",
+                    Detail = "No se encontro una entrada con el id que buscas",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+            this.Nuevo();
+            return;
+        }
         var entradaEncontrada = await httpClient.GetFromJsonAsync<Entradas>($"api/Entradas/{Entradas.EntradaId}");
         if (entradaEncontrada != null)
         {
@@ -181,29 +192,17 @@
             EntradasDetalleList = Entradas.EntradasDetalle;
             StateHasChanged();
         }
-
-        else
-        {
-            var mensaje = new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Error,
-                    Summary = "No se ha encontrado",
-                    Detail = "No se ha encontrado la entrada que estaba buscando",
-                    Duration = 4000
-                };
-            notificationService.Notify(mensaje);
-            this.Nuevo();
-        }
     }
 
     public void Nuevo()
     {
         this.Entradas = new Entradas();
-        this.Entradas.EntradasDetalle = new List<EntradasDetalle>();
+        CargarProductos();
     }
 
     public async Task Eliminar()
     {
+        var EntradaRemover = Entradas;
         using var response = await httpClient.DeleteAsync($"api/Entradas/{Entradas.EntradaId}");
         if (!response.IsSuccessStatusCode)
         {
@@ -217,9 +216,30 @@
             notificationService.Notify(mensaje);
             return;
         }
-        else
-            Nuevo();
+        var DetallesQueSeEliminaran = new List<EntradasDetalle>();
+        foreach (var detalle in EntradaRemover.EntradasDetalle)
+        {
+            DetallesQueSeEliminaran.Add(detalle);
+        }
+
+        foreach (var detalle in DetallesQueSeEliminaran)
+        {
+            RemoverDetalle(detalle);
+        }
+
+        for (int i = 1; i < ProductosList.Count() + 1; i++)
+        {
+            var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == i);
+            if (ProductoUpdate.ProductoId == Entradas.ProductoId)
+                ProductoUpdate.Existencia = Entradas.CantidadProducida;
+            if (ProductoUpdate != null)
+            {
+                await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
+            }
+        }
+        Nuevo();
     }
+
 
     public async Task Guardar()
     {
@@ -250,6 +270,16 @@
             Entradas = EntradaDevuelto;
             EntradasDetalleList = Entradas.EntradasDetalle;
             StateHasChanged();
+            for (int i = 1; i < ProductosList.Count() + 1; i++)
+            {
+                var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == i);
+
+                if (ProductoUpdate.ProductoId == Entradas.ProductoId)
+                    ProductoUpdate.Existencia = Entradas.CantidadProducida;
+
+                if (ProductoUpdate != null)
+                    await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
+            }
         }
     }
 
@@ -264,11 +294,11 @@
                     CantidadUtilizada = Cantidad
                 };
             Entradas.EntradasDetalle.Add(detalle);
-            PesoTotal += Cantidad;
-            Productos? ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == ProductoSeleccionadoUtilizado);
+            var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == ProductoSeleccionadoUtilizado);
             ProductoUpdate.Existencia = ProductoUpdate.Existencia - Cantidad;
-            using var response = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{ProductoSeleccionadoUtilizado}", ProductoUpdate);
+            ProductosList.ElementAt(ProductoSeleccionadoUtilizado - 1).Existencia = ProductoUpdate.Existencia;
             Cantidad = 0;
+            CalcularPesoTotal();
             StateHasChanged();
         }
     }
@@ -277,11 +307,11 @@
     {
         ProductoSeleccionadoUtilizado = detalleRemover.ProductoId;
         Cantidad = detalleRemover.CantidadUtilizada;
-        PesoTotal -= detalleRemover.CantidadUtilizada;
-        Productos? ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == ProductoSeleccionadoUtilizado);
-        ProductoUpdate.Existencia = ProductoUpdate.Existencia + detalleRemover.CantidadUtilizada;
-        using var response = await httpClient.PutAsJsonAsync<Productos>($"api/Productos/{detalleRemover.ProductoId}", ProductoUpdate);
+        var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == detalleRemover.ProductoId);
+        ProductoUpdate.Existencia = ProductoUpdate.Existencia + Cantidad;
+        ProductosList.ElementAt(detalleRemover.ProductoId - 1).Existencia = ProductoUpdate.Existencia;
         Entradas.EntradasDetalle.Remove(detalleRemover);
+        CalcularPesoTotal();
     }
 
     public bool ValidarDetalle()
@@ -325,6 +355,11 @@
         return true;
     }
 
+    private async Task CalcularPesoTotal()
+    {
+        Entradas.PesoTotal= Entradas.EntradasDetalle.Sum(E => E.CantidadUtilizada);
+    }
+
     private async Task CargarProductos()
     {
         var encontrados = await httpClient.GetFromJsonAsync<IEnumerable<Productos>>("api/Productos");
@@ -358,11 +393,11 @@
 
     private async Task VerificarProducido()
     {
-        if (ProductoSeleccionadoProducido == 0)
+        if (Entradas.ProductoId == 0)
         {
             return;
         }
-        if (ProductoSeleccionadoProducido == 6)
+        if (Entradas.ProductoId == 6)
         {
             if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3))
             {
@@ -371,20 +406,20 @@
                                              .Sum(p => p.CantidadUtilizada) + Entradas.EntradasDetalle
                                              .Where(p => p.ProductoId == 2).Sum(p => p.CantidadUtilizada)
                                              + Entradas.EntradasDetalle.Where(p => p.ProductoId == 3).Sum(p => p.CantidadUtilizada);
-                if (SumaDeGramos / 226.80 <= 1)
+                if (SumaDeGramos / 226.80 < 1)
                 {
                     var mensaje = new NotificationMessage
                         {
                             Severity = NotificationSeverity.Error,
                             Summary = "Cantidad no valida",
-                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 500 gramos.",
+                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 226.80 gramos.",
                             Duration = 4000
                         };
                     notificationService.Notify(mensaje);
                     Entradas.CantidadProducida = 0;
                     return;
                 }
-                else if (Entradas.CantidadProducida > SumaDeGramos / 226.80)
+                else if (Entradas.CantidadProducida >= SumaDeGramos / 226.80)
                 {
                     var mensaje = new NotificationMessage
                         {
@@ -414,9 +449,9 @@
                 return;
             }
         }
-        else if (ProductoSeleccionadoProducido == 7)
+        else if (Entradas.ProductoId == 7)
         {
-            if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) || Entradas.EntradasDetalle.Any(p => p.ProductoId == 5)))
+            if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3) && (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) || Entradas.EntradasDetalle.Any(p => p.ProductoId == 5)))
             {
                 double SumaDeGramos = Entradas.EntradasDetalle
                                              .Where(p => p.ProductoId == 1)
@@ -430,14 +465,14 @@
                         {
                             Severity = NotificationSeverity.Error,
                             Summary = "Cantidad no valida",
-                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 500 gramos.",
+                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 226.80 gramos.",
                             Duration = 4000
                         };
                     notificationService.Notify(mensaje);
                     Entradas.CantidadProducida = 0;
                     return;
                 }
-                else if (Entradas.CantidadProducida > (int)(SumaDeGramos / 226.80))
+                else if (Entradas.CantidadProducida >= (int)(SumaDeGramos / 226.80))
                 {
                     var mensaje = new NotificationMessage
                         {
@@ -467,7 +502,7 @@
                 return;
             }
         }
-        else if (ProductoSeleccionadoProducido == 8)
+        else if (Entradas.ProductoId == 8)
         {
             if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3))
             {
@@ -482,7 +517,7 @@
                         {
                             Severity = NotificationSeverity.Error,
                             Summary = "Cantidad no valida",
-                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 200 gramos.",
+                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 90.72 gramos.",
                             Duration = 4000
                         };
                     notificationService.Notify(mensaje);
@@ -490,7 +525,7 @@
                     return;
 
                 }
-                else if (Entradas.CantidadProducida > (int)(SumaDeGramos / 90.72))
+                else if (Entradas.CantidadProducida >= (int)(SumaDeGramos / 90.72))
                 {
                     var mensaje = new NotificationMessage
                         {

@@ -58,6 +58,7 @@
             <button type="button" class="btn btn-outline-primary" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
             <button type="submit" class="btn btn-outline-success">Guardar <i class="oi oi-document" /></button>
             <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"> Eliminar <i class="oi oi-trash" /></button>
+            <button type="button" class="btn btn-outline-warning" @onclick="Reset"> Reset</button>
         </div>
     </div>
 </EditForm>
@@ -73,7 +74,7 @@
         if (this.ProductoId > 0)
         {
             this.producto.ProductoId = this.ProductoId;
-            Buscar();
+            await Buscar();
         }
     }
 
@@ -162,5 +163,12 @@
             notificationService.Notify(mensaje);
             Nuevo();
         }
+    }
+
+    public void Reset()
+    {
+        
+        producto.Existencia = 500;
+        Guardar();
     }
 }
