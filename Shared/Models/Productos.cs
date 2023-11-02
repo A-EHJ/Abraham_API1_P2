@@ -21,7 +21,6 @@ namespace Abraham_API1_P2.Shared.Models
         public int Tipo { get; set; }
 
         [Required(ErrorMessage = "Es obligatorio introducir la Existensia del producto.")]
-        [Range(1, double.MaxValue, ErrorMessage = "La Existensia debe ser mayor que 0.")]
         public double Existencia { get; set; }
     }
 }
