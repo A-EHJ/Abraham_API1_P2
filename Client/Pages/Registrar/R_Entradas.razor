@@ -170,15 +170,14 @@
 
     public async Task Buscar()
     {
-
         try { await httpClient.GetFromJsonAsync<Entradas>($"api/Entradas/{Entradas.EntradaId}"); }
         catch (Exception ex)
         {
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = "No se ha encontrado",
-                    Detail = "No se encontro una entrada con el id que buscas",
+                    Summary = "No se ha encontrado.",
+                    Detail = "No se encontró una entrada con el ID que estás buscando. ",
                     Duration = 4000
                 };
             notificationService.Notify(mensaje);
@@ -209,13 +208,14 @@
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = "No se ha Eliminado",
-                    Detail = response.ReasonPhrase ?? " error",
+                    Summary = "No se ha eliminado",
+                    Detail = "Error: " ?? response.ReasonPhrase,
                     Duration = 4000
                 };
             notificationService.Notify(mensaje);
             return;
         }
+
         var DetallesQueSeEliminaran = new List<EntradasDetalle>();
         foreach (var detalle in EntradaRemover.EntradasDetalle)
         {
@@ -249,8 +249,8 @@
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = "No se ha guardado el Entradas",
-                    Detail = response.ReasonPhrase ?? "error",
+                    Summary = "No se ha guardado la Entrada.",
+                    Detail = "Error: " ?? response.ReasonPhrase,
                     Duration = 4000
                 };
             notificationService.Notify(mensaje);
@@ -262,8 +262,8 @@
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
-                    Summary = "Se ha guardado el Entradas",
-                    Detail = "Se ha creado su Entradas",
+                    Summary = "Entrada guardada exitosamente",
+                    Detail = "Su Entradas ha sido guardada con éxito.",
                     Duration = 4000
                 };
             notificationService.Notify(mensaje);
@@ -320,9 +320,9 @@
         {
             var mensaje = new NotificationMessage
                 {
-                    Severity = NotificationSeverity.Error,
-                    Summary = "Producto no valido",
-                    Detail = "Debe seleccionar un producto.",
+                    Severity = NotificationSeverity.Warning,
+                    Summary = "Producto no válido.",
+                    Detail = "Debe seleccionar un producto. Por favor, elija un producto antes de continuar.",
                     Duration = 3000
                 };
             notificationService.Notify(mensaje);
@@ -332,9 +332,9 @@
         {
             var mensaje = new NotificationMessage
                 {
-                    Severity = NotificationSeverity.Error,
-                    Summary = "Cantidad no valida",
-                    Detail = "La cantidad debe ser mayor a 0.",
+                    Severity = NotificationSeverity.Warning,
+                    Summary = "Cantidad no válida.",
+                    Detail = "La cantidad especificada a utilizar debe ser mayor que 0 para poder agregarlo.",
                     Duration = 3000
                 };
             notificationService.Notify(mensaje);
@@ -345,9 +345,9 @@
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = "Cantidad no valida",
-                    Detail = "La cantidad que desea utilizar es mayor a la existente. Solo quedan " + CantidadProducto(ProductoSeleccionadoUtilizado),
-                    Duration = 4000
+                    Summary = "Cantidad no válida.",
+                    Detail = "La cantidad que desea utilizar es mayor que la existente. Solo quedan " + CantidadProducto(ProductoSeleccionadoUtilizado) + " unidades de este producto en stock.",
+                    Duration = 5000
                 };
             notificationService.Notify(mensaje);
             return false;
@@ -370,14 +370,12 @@
     public string DescripcionTipo(int tipoId)
     {
         var tipoProducto = ProductosList.FirstOrDefault(t => t.ProductoId == tipoId);
-
         return tipoProducto!.Descripción;
     }
 
     public double CantidadProducto(int tipoId)
     {
         var CantidadProducto = ProductosList.FirstOrDefault(t => t.ProductoId == tipoId);
-
         return CantidadProducto!.Existencia;
     }
 
@@ -411,8 +409,8 @@
                     var mensaje = new NotificationMessage
                         {
                             Severity = NotificationSeverity.Error,
-                            Summary = "Cantidad no valida",
-                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 226.80 gramos.",
+                            Summary = "Cantidad utilizada insuficiente.",
+                            Detail = "La cantidad que desea utilizar es mayor que la que usted utiliza; el mínimo es 226.80 gramos.",
                             Duration = 4000
                         };
                     notificationService.Notify(mensaje);
@@ -423,9 +421,9 @@
                 {
                     var mensaje = new NotificationMessage
                         {
-                            Severity = NotificationSeverity.Error,
-                            Summary = "Cantidad no valida",
-                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza.",
+                            Severity = NotificationSeverity.Warning,
+                            Summary = "Aviso: Cantidad mayor a la existente.",
+                            Detail = "La cantidad que desea utilizar es mayor que la que usted quiere utilizar.",
                             Duration = 4000
                         };
                     notificationService.Notify(mensaje);
@@ -440,9 +438,9 @@
                 var mensaje = new NotificationMessage
                     {
                         Severity = NotificationSeverity.Error,
-                        Summary = "No se ha podido agregar",
-                        Detail = "No se ha podido agregar el producto, debe tener los productos Mani, Pasas y Pistachos.",
-                        Duration = 4000
+                        Summary = "Productos faltantes.",
+                        Detail = "No se puede agregar el producto porque los elementos necesarios, como Maní, Pasas y Pistachos, no están presentes en el carrito de compras. Por favor, asegúrese de que estos productos estén en el carrito antes de continuar.",
+                        Duration = 6000
                     };
                 notificationService.Notify(mensaje);
                 Entradas.CantidadProducida = 0;
@@ -459,13 +457,13 @@
                                              .Where(p => p.ProductoId == 2).Sum(p => p.CantidadUtilizada)
                                              + Entradas.EntradasDetalle.Where(p => p.ProductoId == 4).Sum(p => p.CantidadUtilizada) 
                                              + Entradas.EntradasDetalle.Where(p => p.ProductoId == 5).Sum(p => p.CantidadUtilizada);
-                if ((int)(SumaDeGramos / 226.80) <= 1)
+                if ((int)(SumaDeGramos / 226.80) < 1)
                 {
                     var mensaje = new NotificationMessage
                         {
                             Severity = NotificationSeverity.Error,
-                            Summary = "Cantidad no valida",
-                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 226.80 gramos.",
+                            Summary = "Cantidad utilizada insuficiente.",
+                            Detail = "La cantidad que desea utilizar es mayor que la que usted utiliza; el mínimo es 226.80 gramos.",
                             Duration = 4000
                         };
                     notificationService.Notify(mensaje);
@@ -476,9 +474,9 @@
                 {
                     var mensaje = new NotificationMessage
                         {
-                            Severity = NotificationSeverity.Error,
-                            Summary = "Cantidad no valida",
-                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza.",
+                            Severity = NotificationSeverity.Warning,
+                            Summary = "Aviso: Cantidad mayor a la existente.",
+                            Detail = "La cantidad que desea utilizar es mayor que la que usted quiere utilizar.",
                             Duration = 4000
                         };
                     notificationService.Notify(mensaje);
@@ -493,9 +491,9 @@
                 var mensaje = new NotificationMessage
                     {
                         Severity = NotificationSeverity.Error,
-                        Summary = "No se ha podido agregar",
-                        Detail = "No se ha podido agregar el producto, debe tener los productos Mani, Pasas, Ciruela o Arandano.",
-                        Duration = 4000
+                        Summary = "Productos faltantes.",
+                        Detail = "No se puede agregar el producto porque los elementos necesarios, como Maní, Pasas, Ciruela o Arándano, no están presentes en el carrito de compras. Por favor, asegúrese de que al menos tres de estos productos esté en el carrito antes de continuar.",
+                        Duration = 6000
                     };
                 notificationService.Notify(mensaje);
                 Entradas.CantidadProducida = 0;
@@ -511,13 +509,13 @@
                                              .Sum(p => p.CantidadUtilizada) + Entradas.EntradasDetalle
                                              .Where(p => p.ProductoId == 2).Sum(p => p.CantidadUtilizada)
                                              + Entradas.EntradasDetalle.Where(p => p.ProductoId == 3).Sum(p => p.CantidadUtilizada);
-                if (SumaDeGramos / 90.72 <= 1)
+                if (SumaDeGramos / 90.72 < 1)
                 {
                     var mensaje = new NotificationMessage
                         {
                             Severity = NotificationSeverity.Error,
-                            Summary = "Cantidad no valida",
-                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza, el minimo es 90.72 gramos.",
+                            Summary = "Cantidad utilizada insuficiente.",
+                            Detail = "La cantidad que desea utilizar es mayor que la que usted utiliza; el mínimo es 90.72 gramos.",
                             Duration = 4000
                         };
                     notificationService.Notify(mensaje);
@@ -529,9 +527,9 @@
                 {
                     var mensaje = new NotificationMessage
                         {
-                            Severity = NotificationSeverity.Error,
-                            Summary = "Cantidad no valida",
-                            Detail = "La cantidad que desea utilizar es mayor a que usted utiliza.",
+                            Severity = NotificationSeverity.Warning,
+                            Summary = "Cantidad no válida.",
+                            Detail = "La cantidad que desea utilizar es mayor que la que usted quiere utilizar.",
                             Duration = 4000
                         };
                     notificationService.Notify(mensaje);
@@ -546,9 +544,9 @@
                 var mensaje = new NotificationMessage
                     {
                         Severity = NotificationSeverity.Error,
-                        Summary = "No se ha podido agregar",
-                        Detail = "No se ha podido agregar el producto, debe tener los productos Mani, Pasas y Pistachos.",
-                        Duration = 4000
+                        Summary = "Productos faltantes.",
+                        Detail = "No se puede agregar el producto debido a la ausencia de los siguientes elementos en el carrito: Maní, Pasas y Pistachos. Asegúrese de que estos productos estén en el carrito antes de continuar.",
+                        Duration = 6000
                     };
                 notificationService.Notify(mensaje);
                 Entradas.CantidadProducida = 0;

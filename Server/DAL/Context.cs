@@ -6,7 +6,6 @@ namespace Abraham_API1_P2.Server.DAL
     public class Context : DbContext
     {
         public DbSet<Entradas> Entrada { get; set; }
-
         public DbSet<Productos> Productos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -7,7 +7,6 @@ namespace Abraham_API1_P2.Shared.Models
     {
         [Key]
         public int EntradaId { get; set; }
-
         public DateTime Fecha { get; set; } = DateTime.Now;
 
         [Required(ErrorMessage = "Es obligatorio introducir el concepto de la entrada.")]

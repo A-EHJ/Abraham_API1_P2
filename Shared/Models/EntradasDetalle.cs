@@ -12,7 +12,6 @@ namespace Abraham_API1_P2.Shared.Models
     {
         [Key]
         public int DetalleId { get; set; }
-
         public int EntradaId { get; set; }
 
         [Required(ErrorMessage = "Es obligatorio introducir el producto que desea.")]
