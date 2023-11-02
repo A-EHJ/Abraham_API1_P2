@@ -391,8 +391,20 @@
 
     private async Task VerificarProducido()
     {
-        if (Entradas.ProductoId == 0)
+        if (Entradas.ProductoId == 0 || Entradas.CantidadProducida <= 0)
         {
+            if (Entradas.CantidadProducida < 0)
+            {
+                var mensaje = new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Warning,
+                        Summary = "Cantidad no válida.",
+                        Detail = "La cantidad especificada a utilizar debe ser mayor que 0 para poder agregarlo.",
+                        Duration = 3000
+                    };
+                notificationService.Notify(mensaje);
+                Entradas.CantidadProducida = 0;
+            }
             return;
         }
         if (Entradas.ProductoId == 6)
@@ -417,7 +429,7 @@
                     Entradas.CantidadProducida = 0;
                     return;
                 }
-                else if (Entradas.CantidadProducida >= SumaDeGramos / 226.80)
+                else if (Entradas.CantidadProducida > SumaDeGramos / 226.80)
                 {
                     var mensaje = new NotificationMessage
                         {
@@ -454,10 +466,10 @@
                 double SumaDeGramos = Entradas.EntradasDetalle
                                              .Where(p => p.ProductoId == 1)
                                              .Sum(p => p.CantidadUtilizada) + Entradas.EntradasDetalle
-                                             .Where(p => p.ProductoId == 2).Sum(p => p.CantidadUtilizada)
+                                             .Where(p => p.ProductoId == 3).Sum(p => p.CantidadUtilizada)
                                              + Entradas.EntradasDetalle.Where(p => p.ProductoId == 4).Sum(p => p.CantidadUtilizada) 
                                              + Entradas.EntradasDetalle.Where(p => p.ProductoId == 5).Sum(p => p.CantidadUtilizada);
-                if ((int)(SumaDeGramos / 226.80) < 1)
+                if ((SumaDeGramos / 226.80) < 1)
                 {
                     var mensaje = new NotificationMessage
                         {
@@ -470,7 +482,7 @@
                     Entradas.CantidadProducida = 0;
                     return;
                 }
-                else if (Entradas.CantidadProducida >= (int)(SumaDeGramos / 226.80))
+                else if (Entradas.CantidadProducida > (SumaDeGramos / 226.80))
                 {
                     var mensaje = new NotificationMessage
                         {
@@ -523,7 +535,7 @@
                     return;
 
                 }
-                else if (Entradas.CantidadProducida >= (int)(SumaDeGramos / 90.72))
+                else if (Entradas.CantidadProducida > (SumaDeGramos / 90.72))
                 {
                     var mensaje = new NotificationMessage
                         {

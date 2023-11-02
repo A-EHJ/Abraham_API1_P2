@@ -153,13 +153,13 @@
                 Entradas = Entradas.Where(x => x.EntradaId == EntradaId && x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
                 break;
             case 1:
-                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.Concepto.Contains(Concepto)).ToList();
+                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.Concepto.ToLower().Contains(Concepto.ToLower())).ToList();
                 break;
             case 2:
                 Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.PesoTotal >= PesoTotal - (PesoTotal / 10) && x.PesoTotal <= PesoTotal + (PesoTotal / 10)).ToList();
                 break;
             case 3:
-                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.ProductoId == PesoTotal).ToList();
+                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.ProductoId == ProductoId).ToList();
                 break;
             case 4:
                 Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.CantidadProducida == CantidadProducida).ToList();
