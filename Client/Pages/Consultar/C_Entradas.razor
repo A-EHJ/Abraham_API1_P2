@@ -12,8 +12,8 @@
     </div>
     <div class="card-body">
         <div class="input-group-text">
+            
             <label class="form-control-label col-1">Desde:</label>
-
             <div class="col-3">
                 <input class="form-control" type="date" @bind="Desde" />
             </div>
@@ -22,6 +22,7 @@
             <div class="col-3">
                 <input class="form-control" type="date" @bind="Hasta" />
             </div>
+
             <div class="col-5">
                 <button type="button" @onclick="Buscar" class="btn btn-primary  ">
                     <i class="oi oi-reload" />
@@ -71,8 +72,6 @@
                 }
             </div>
         </div>
-
-
 
         @if (Entradas is not null)
         {
@@ -130,7 +129,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-
         Desde = DateTime.Now.AddMonths(-1);
         Hasta = DateTime.Now;
         await Buscar();
@@ -149,29 +147,26 @@
     {
         Hasta = new DateTime(Hasta.Year, Hasta.Month, Hasta.Day, 23, 59, 59);
         Entradas = await httpClient.GetFromJsonAsync<List<Entradas>>($"api/Entradas");
-        if (FiltrarPor == 0)
+        switch (FiltrarPor)
         {
-            Entradas = Entradas.Where(x => x.EntradaId == EntradaId && x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
-        }
-        if (FiltrarPor == 1)
-        {
-            Entradas = Entradas.Where(x => x.Concepto == Concepto && x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
-        }
-        if (FiltrarPor == 2)
-        {
-            Entradas = Entradas.Where(x => x.PesoTotal == PesoTotal && x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
-        }
-        if (FiltrarPor == 3)
-        {
-            Entradas = Entradas.Where(x => x.ProductoId == ProductoId && x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
-        }
-        if (FiltrarPor == 4)
-        {
-            Entradas = Entradas.Where(x => x.CantidadProducida == CantidadProducida && x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
-        }
-        if (FiltrarPor == -1)
-        {
-            Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
+            case 0:
+                Entradas = Entradas.Where(x => x.EntradaId == EntradaId && x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
+                break;
+            case 1:
+                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.Concepto.Contains(Concepto)).ToList();
+                break;
+            case 2:
+                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.PesoTotal >= PesoTotal - (PesoTotal / 10) && x.PesoTotal <= PesoTotal + (PesoTotal / 10)).ToList();
+                break;
+            case 3:
+                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.ProductoId == PesoTotal).ToList();
+                break;
+            case 4:
+                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.CantidadProducida == CantidadProducida).ToList();
+                break;
+            default:
+                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
+                break;
         }
         Conteo = Entradas != null ? Entradas!.Count() : 0;
         if (Entradas.Count() == 0)
@@ -179,15 +174,12 @@
             var mensaje = new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = "No se ha encontrado ningun registro",
-                    Detail = "Revise los parametros utilizados",
+                    Summary = "No se ha encontrado ningún registro",
+                    Detail = "Revise los parámetros utilizados",
                     Duration = 4000
                 };
             notificationService.Notify(mensaje);
         }
-        
-        
         StateHasChanged();
-
     }
 }
