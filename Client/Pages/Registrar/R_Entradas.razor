@@ -148,7 +148,6 @@
     public Entradas Entradas { get; set; } = new Entradas();
 
     public IEnumerable<Productos> ProductosList { get; set; } = Enumerable.Empty<Productos>();
-    public IEnumerable<EntradasDetalle> EntradasDetalleList { get; set; } = Enumerable.Empty<EntradasDetalle>();
 
     //Para el detalle
     public string? Descripción { get; set; }
@@ -188,7 +187,6 @@
         if (entradaEncontrada != null)
         {
             this.Entradas = entradaEncontrada;
-            EntradasDetalleList = Entradas.EntradasDetalle;
             StateHasChanged();
         }
     }
@@ -268,7 +266,6 @@
                 };
             notificationService.Notify(mensaje);
             Entradas = EntradaDevuelto;
-            EntradasDetalleList = Entradas.EntradasDetalle;
             StateHasChanged();
             for (int i = 1; i < ProductosList.Count() + 1; i++)
             {
