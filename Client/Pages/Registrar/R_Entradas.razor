@@ -150,10 +150,7 @@
     public IEnumerable<Productos> ProductosList { get; set; } = Enumerable.Empty<Productos>();
 
     //Para el detalle
-    public string? Descripción { get; set; }
-    public int Tipo { get; set; }
     public double Cantidad { get; set; }
-
     public int ProductoSeleccionadoUtilizado { get; set; }
 
     protected override async Task OnInitializedAsync()
