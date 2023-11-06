@@ -151,6 +151,7 @@
 
     //Para el detalle
     public double Cantidad { get; set; }
+
     public int ProductoSeleccionadoUtilizado { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -235,9 +236,21 @@
         Nuevo();
     }
 
-
+   
     public async Task Guardar()
     {
+        if (Entradas.EntradasDetalle.Count == 0)
+        {
+            var mensaje = new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "No se puede guardar un registro sin detalles.",
+                Duration = 4000
+            };
+        notificationService.Notify(mensaje);
+        return;
+        }
         using var response = await httpClient.PostAsJsonAsync("api/Entradas", Entradas);
         if (!response.IsSuccessStatusCode)
         {
