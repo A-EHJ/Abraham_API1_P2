@@ -1,0 +1,153 @@
+﻿@page "/Consultar/Productos"
+@using Abraham_API1_P2.Shared.Models;
+
+@inject HttpClient httpClient
+@inject NotificationService notificationService
+
+<PageTitle>Consultar Productos</PageTitle>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="centrar-texto">Consulta de Productos</h3>
+    </div>
+    <div class="card-body">
+ 
+        <div class="row">
+            <div class="col-3">
+                <label class="form-control-label">Filtrar Por</label>
+                <InputSelect @bind-Value="FiltrarPor" class="form-select">
+                    <option value="-1" disabled selected> [Seleccione] </option>
+                    <option value="0">Id</option>
+                    <option value="1">Descripci&oacute;n</option>
+                    <option value="2">Existencia</option>
+                    <option value="3">Tipo</option>
+                </InputSelect>
+            </div>
+
+            <div class="col-3">
+                @if (FiltrarPor == 0)
+                {
+                    <label class="form-control-label">Id</label>
+                    <InputNumber @bind-Value="ProductoId" class="form-control"></InputNumber>
+                }
+                @if (FiltrarPor == 1)
+                {
+                    <label class="form-control-label">Descripci&oacute;n</label>
+                    <InputText @bind-Value="Descripción" class="form-control"></InputText>
+                }
+                @if (FiltrarPor == 2)
+                {
+                    <label class="form-control-label">Existencia</label>
+                    <InputNumber @bind-Value="Existencia" class="form-control"></InputNumber>
+                }
+                @if (FiltrarPor == 3)
+                {
+                    <label class="form-control-label">Tipo</label>
+                    <InputNumber @bind-Value="Tipo" class="form-control"></InputNumber>
+                }
+            </div>
+            <div class="col-5">
+                <button type="button" @onclick="Buscar" class="btn btn-primary  ">
+                    <i class="oi oi-reload" />
+                    <br /> Buscar
+                </button>
+            </div>
+        </div>
+
+
+        @if (Productos is not null)
+        {
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ProductoId</th>
+                        <th>Descripci&oacute;n</th>
+                        <th>Existencia</th>
+                        <th>Tipo</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var productos in Productos)
+                    {
+                        <tr>
+                            <td>@productos.ProductoId</td>
+                            <td>@productos.Descripción</td>
+                            <td>@productos.Existencia</td>
+                            <td>@productos.Tipo</td>
+                            <td><a href="Registrar/Productos/@productos.ProductoId">Ver</a></td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>Conteo = @Conteo</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+        }
+    </div>
+    <div class="card-footer">
+        <div class="form-row justify-content-sm-between" aria-orientation="vertical">
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Productos> Productos = new List<Productos>();
+
+    public int FiltrarPor = -1;
+    public int Conteo = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Buscar();
+    }
+
+    public int ProductoId { get; set; }
+    public string? Descripción { get; set; }
+    public double Existencia { get; set; }
+    public int Tipo { get; set; }
+
+    public async Task Buscar()
+    {
+        Productos = await httpClient.GetFromJsonAsync<List<Productos>>($"api/Productos");
+        switch (FiltrarPor)
+        {
+            case 0:
+                Productos = Productos.Where(x => x.ProductoId == ProductoId).ToList();
+                break;
+            case 1:
+                Productos = Productos.Where(x => x.Descripción.ToLower().Contains(Descripción.ToLower())).ToList();
+                break;
+            case 2:
+                Productos = Productos.Where(x => x.Existencia >= Existencia - (Existencia / 10) && x.Existencia <= Existencia + (Existencia / 10)).ToList();
+                break;
+            case 3:
+                Productos = Productos.Where(x => x.Tipo == Tipo).ToList();
+                break;
+            default:
+                Productos = Productos.Where(x => true).ToList();
+                break;
+        }
+        Conteo = Productos != null ? Productos!.Count() : 0;
+        if (Productos.Count() == 0)
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "No se ha encontrado ningún registro",
+                    Detail = "Revise los parámetros utilizados",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+        }
+        StateHasChanged();
+    }
+}
