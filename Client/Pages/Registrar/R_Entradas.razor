@@ -234,7 +234,7 @@
             }
         }
         var ProductoProducidoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == EntradaRemover.ProductoId);
-        ProductoProducidoUpdate.Existencia -= EntradaRemover.ProductoId;
+        ProductoProducidoUpdate.Existencia -= EntradaRemover.CantidadProducida;
         await httpClient.PutAsJsonAsync($"api/Productos/{EntradaRemover.ProductoId}", ProductoProducidoUpdate);
         Nuevo();
     }
