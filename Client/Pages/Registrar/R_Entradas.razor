@@ -233,6 +233,9 @@
                 await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
             }
         }
+        var ProductoProducidoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == EntradaRemover.ProductoId);
+        ProductoProducidoUpdate.Existencia -= EntradaRemover.ProductoId;
+        await httpClient.PutAsJsonAsync($"api/Productos/{EntradaRemover.ProductoId}", ProductoProducidoUpdate);
         Nuevo();
     }
 
@@ -319,6 +322,7 @@
         ProductosList.ElementAt(detalleRemover.ProductoId - 1).Existencia = ProductoUpdate.Existencia;
         Entradas.EntradasDetalle.Remove(detalleRemover);
         CalcularPesoTotal();
+
     }
 
     public bool ValidarDetalle()
