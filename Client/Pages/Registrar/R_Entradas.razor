@@ -239,7 +239,7 @@
         Nuevo();
     }
 
-   
+
     public async Task Guardar()
     {
         if (Entradas.EntradasDetalle.Count == 0)
@@ -251,8 +251,8 @@
                 Detail = "No se puede guardar un registro sin detalles.",
                 Duration = 4000
             };
-        notificationService.Notify(mensaje);
-        return;
+            notificationService.Notify(mensaje);
+            return;
         }
         using var response = await httpClient.PostAsJsonAsync("api/Entradas", Entradas);
         if (!response.IsSuccessStatusCode)
@@ -422,11 +422,26 @@
         {
             if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3))
             {
+                if (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 5))
+                {
+                    var mensaje = new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Productos innecesarios",
+                            Detail = "Tiene o Arandano o Ciruela en el detalle, estos no son utilizados para este paquete",
+                            Duration = 6000
+                        };
+                    notificationService.Notify(mensaje);
+                    Entradas.CantidadProducida = 0;
+                    return;
+                }
+
                 double SumaDeGramos = Entradas.EntradasDetalle
                                              .Where(p => p.ProductoId == 1)
                                              .Sum(p => p.CantidadUtilizada) + Entradas.EntradasDetalle
                                              .Where(p => p.ProductoId == 2).Sum(p => p.CantidadUtilizada)
                                              + Entradas.EntradasDetalle.Where(p => p.ProductoId == 3).Sum(p => p.CantidadUtilizada);
+                
                 if (SumaDeGramos / 226.80 < 1)
                 {
                     var mensaje = new NotificationMessage
@@ -474,6 +489,20 @@
         {
             if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3) && (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) || Entradas.EntradasDetalle.Any(p => p.ProductoId == 5)))
             {
+                if (Entradas.EntradasDetalle.Any(p => p.ProductoId == 2))
+                {
+                    var mensaje = new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Productos innecesarios",
+                            Detail = "Tiene Pistachos en el detalle, este no es utilizado para este paquete",
+                            Duration = 6000
+                        };
+                    notificationService.Notify(mensaje);
+                    Entradas.CantidadProducida = 0;
+                    return;
+                }
+
                 double SumaDeGramos = Entradas.EntradasDetalle
                                              .Where(p => p.ProductoId == 1)
                                              .Sum(p => p.CantidadUtilizada) + Entradas.EntradasDetalle
@@ -527,6 +556,20 @@
         {
             if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3))
             {
+                if (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 5))
+                {
+                    var mensaje = new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Productos innecesarios",
+                            Detail = "Tiene o Arandano o Ciruela en el detalle, estos no son utilizados para este paquete",
+                            Duration = 6000
+                        };
+                    notificationService.Notify(mensaje);
+                    Entradas.CantidadProducida = 0;
+                    return;
+                }
+
                 double SumaDeGramos = Entradas.EntradasDetalle
                                              .Where(p => p.ProductoId == 1)
                                              .Sum(p => p.CantidadUtilizada) + Entradas.EntradasDetalle
