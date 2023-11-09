@@ -37,7 +37,7 @@
             <div class="col-3">
                 <label class="form-control-label">Filtrar Por</label>
                 <InputSelect @bind-Value="FiltrarPor" class="form-select">
-                    <option value="-1" disabled selected> [Seleccione] </option>
+                    <option value="-2" disabled selected> [Seleccione] </option>
                     <option value="-1">Fecha</option>
                     <option value="0">Id</option>
                     <option value="1">Concepto</option>
@@ -47,30 +47,39 @@
                 </InputSelect>
             </div>
             <div class="col-3">
-                @if (FiltrarPor == 0)
+                @if (FiltrarPor == -1)
                 {
-                    <label class="form-control-label">Id</label>
-                    <InputNumber @bind-Value="EntradaId" class="form-control"></InputNumber>
+
                 }
-                @if (FiltrarPor == 1)
-                {
-                    <label class="form-control-label">Concepto</label>
-                    <InputText @bind-Value="Concepto" class="form-control"></InputText>
-                }
-                @if (FiltrarPor == 2)
-                {
-                    <label class="form-control-label">Peso Total</label>
-                    <InputNumber @bind-Value="PesoTotal" class="form-control"></InputNumber>
-                }
-                @if (FiltrarPor == 3)
-                {
-                    <label class="form-control-label">ProductoId</label>
-                    <InputNumber @bind-Value="ProductoId" class="form-control"></InputNumber>
-                }
-                @if (FiltrarPor == 4)
-                {
-                    <label class="form-control-label">Cantidad Producida</label>
-                    <InputNumber @bind-Value="CantidadProducida" class="form-control"></InputNumber>
+                else{
+                    @if (FiltrarPor == 0 || EntradaId>0)
+                    {
+                        <label class="form-control-label">Id</label>
+                        <InputNumber @bind-Value="EntradaId" class="form-control"></InputNumber>
+                    }
+                    @if (FiltrarPor == 1 || !string.IsNullOrEmpty(Concepto))
+                    {
+                        <label class="form-control-label">Concepto</label>
+                        <InputText @bind-Value="Concepto" class="form-control"></InputText>
+                    }
+                    @if (FiltrarPor == 2 || PesoTotal > 0)
+                    {
+                        <label class="form-control-label">Peso Total</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="PesoTotal" class="form-control"></InputNumber>
+                            <h6>Se buscará un rango de +/- 10% del valor ingresado</h6>
+                        </div>
+                    }
+                    @if (FiltrarPor == 3 || ProductoId > 0)
+                    {
+                        <label class="form-control-label">ProductoId</label>
+                        <InputNumber @bind-Value="ProductoId" class="form-control"></InputNumber>
+                    } 
+                    @if (FiltrarPor == 4 || CantidadProducida > 0)
+                    {
+                        <label class="form-control-label">Cantidad Producida</label>
+                        <InputNumber @bind-Value="CantidadProducida" class="form-control"></InputNumber>
+                    }
                 }
             </div>
         </div>
