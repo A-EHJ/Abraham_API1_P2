@@ -227,20 +227,18 @@
         {
             var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == i);
             if (ProductoUpdate.ProductoId == Entradas.ProductoId)
-                ProductoUpdate.Existencia = Entradas.CantidadProducida;
+                ProductoUpdate.Existencia -= Entradas.CantidadProducida;
             if (ProductoUpdate != null)
             {
                 await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
             }
         }
-        var ProductoProducidoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == EntradaRemover.ProductoId);
-        ProductoProducidoUpdate.Existencia -= EntradaRemover.CantidadProducida;
-        await httpClient.PutAsJsonAsync($"api/Productos/{EntradaRemover.ProductoId}", ProductoProducidoUpdate);
         Nuevo();
     }
 
 
     public async Task Guardar()
+    
     {
         if (Entradas.EntradasDetalle.Count == 0)
         {
@@ -277,6 +275,7 @@
                     Detail = "Su Entradas ha sido guardada con éxito.",
                     Duration = 4000
                 };
+
             notificationService.Notify(mensaje);
             Entradas = EntradaDevuelto;
             StateHasChanged();
@@ -285,7 +284,7 @@
                 var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == i);
 
                 if (ProductoUpdate.ProductoId == Entradas.ProductoId)
-                    ProductoUpdate.Existencia = Entradas.CantidadProducida;
+                    ProductoUpdate.Existencia += Entradas.CantidadProducida;
 
                 if (ProductoUpdate != null)
                     await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
@@ -422,7 +421,7 @@
         {
             if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3))
             {
-                if (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 5))
+                if (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) || Entradas.EntradasDetalle.Any(p => p.ProductoId == 5))
                 {
                     var mensaje = new NotificationMessage
                         {
@@ -487,7 +486,7 @@
         }
         else if (Entradas.ProductoId == 7)
         {
-            if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3) && (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) || Entradas.EntradasDetalle.Any(p => p.ProductoId == 5)))
+            if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3) && ((Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) || Entradas.EntradasDetalle.Any(p => p.ProductoId == 5))))
             {
                 if (Entradas.EntradasDetalle.Any(p => p.ProductoId == 2))
                 {
@@ -556,7 +555,7 @@
         {
             if (Entradas.CantidadProducida > 0 && Entradas.EntradasDetalle.Any(p => p.ProductoId == 1) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 2) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 3))
             {
-                if (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) && Entradas.EntradasDetalle.Any(p => p.ProductoId == 5))
+                if (Entradas.EntradasDetalle.Any(p => p.ProductoId == 4) || Entradas.EntradasDetalle.Any(p => p.ProductoId == 5))
                 {
                     var mensaje = new NotificationMessage
                         {
