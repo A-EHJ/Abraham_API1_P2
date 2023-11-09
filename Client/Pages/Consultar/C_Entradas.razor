@@ -149,27 +149,38 @@
     {
         Hasta = new DateTime(Hasta.Year, Hasta.Month, Hasta.Day, 23, 59, 59);
         Entradas = await httpClient.GetFromJsonAsync<List<Entradas>>($"api/Entradas");
-        switch (FiltrarPor)
+
+
+        if (Entradas.Count() == 0)
         {
-            case 0:
-                Entradas = Entradas.Where(x => x.EntradaId == EntradaId && x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
-                break;
-            case 1:
-                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.Concepto.ToLower().Contains(Concepto.ToLower())).ToList();
-                break;
-            case 2:
-                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.PesoTotal >= PesoTotal - (PesoTotal / 10) && x.PesoTotal <= PesoTotal + (PesoTotal / 10)).ToList();
-                break;
-            case 3:
-                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.ProductoId == ProductoId).ToList();
-                break;
-            case 4:
-                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta && x.CantidadProducida == CantidadProducida).ToList();
-                break;
-            default:
-                Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
-                break;
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "No tiene registros guardados.",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+            return;
         }
+
+
+        if (FiltrarPor == -1)
+        {
+            Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta).ToList();
+        }
+        else
+        {
+            Entradas = Entradas.Where(x => x.Fecha >= Desde && x.Fecha <= Hasta &&
+                                     (EntradaId == 0 || x.EntradaId == EntradaId) &&
+                                     (CantidadProducida == 0 || x.CantidadProducida == CantidadProducida) &&
+                                     (string.IsNullOrEmpty(Concepto) || (x.Concepto != null && x.Concepto.ToLower().Contains(Concepto.ToLower()))) &&
+                                     (PesoTotal == 0 || (x.PesoTotal >= PesoTotal - (PesoTotal / 10) && x.PesoTotal <= PesoTotal + (PesoTotal / 10))) &&
+                                     (ProductoId == 0 || x.ProductoId == ProductoId))
+                                     .ToList();
+
+        }
+
         Conteo = Entradas != null ? Entradas!.Count() : 0;
         if (Entradas.Count() == 0)
         {
@@ -177,7 +188,7 @@
                 {
                     Severity = NotificationSeverity.Error,
                     Summary = "No se ha encontrado ningún registro",
-                    Detail = "Revise los parámetros utilizados",
+                    Detail = "Revise los parámetros utilizados.",
                     Duration = 4000
                 };
             notificationService.Notify(mensaje);
