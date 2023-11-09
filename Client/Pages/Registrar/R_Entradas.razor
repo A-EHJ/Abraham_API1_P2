@@ -151,6 +151,7 @@
 
     //Para el detalle
     public double Cantidad { get; set; }
+    int ReduccionAProductoProducido = 0;
 
     public int ProductoSeleccionadoUtilizado { get; set; }
 
@@ -185,6 +186,7 @@
         if (entradaEncontrada != null)
         {
             this.Entradas = entradaEncontrada;
+            ReduccionAProductoProducido = Entradas.CantidadProducida;
             StateHasChanged();
         }
     }
@@ -192,6 +194,7 @@
     public void Nuevo()
     {
         this.Entradas = new Entradas();
+        ReduccionAProductoProducido = 0;
         CargarProductos();
     }
 
@@ -284,7 +287,7 @@
                 var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == i);
 
                 if (ProductoUpdate.ProductoId == Entradas.ProductoId)
-                    ProductoUpdate.Existencia += Entradas.CantidadProducida;
+                    ProductoUpdate.Existencia += Entradas.CantidadProducida - ReduccionAProductoProducido;
 
                 if (ProductoUpdate != null)
                     await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
