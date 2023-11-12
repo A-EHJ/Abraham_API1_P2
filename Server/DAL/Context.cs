@@ -25,6 +25,7 @@ namespace Abraham_API1_P2.Server.DAL
 
         }
         public Context(DbContextOptions<Context> options) : base(options) { }
+        public DbSet<Abraham_API1_P2.Shared.Models.EntradasDetalle> EntradasDetalle { get; set; } = default!;
     }
 
 }

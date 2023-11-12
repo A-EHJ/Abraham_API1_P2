@@ -236,12 +236,23 @@
                 await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
             }
         }
+        {
+            var mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Eliminado",
+                    Detail = "Ha sido eliminado con exito.",
+                    Duration = 4000
+                };
+            notificationService.Notify(mensaje);
+        }
+        return;
         Nuevo();
     }
 
 
     public async Task Guardar()
-    
+
     {
         if (Entradas.EntradasDetalle.Count == 0)
         {
@@ -255,6 +266,7 @@
             notificationService.Notify(mensaje);
             return;
         }
+        await VerificarProducido();
         using var response = await httpClient.PostAsJsonAsync("api/Entradas", Entradas);
         if (!response.IsSuccessStatusCode)
         {
@@ -281,7 +293,7 @@
 
             notificationService.Notify(mensaje);
             Entradas = EntradaDevuelto;
-            StateHasChanged();
+            
             for (int i = 1; i < ProductosList.Count() + 1; i++)
             {
                 var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == i);
@@ -292,6 +304,7 @@
                 if (ProductoUpdate != null)
                     await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
             }
+            StateHasChanged();
         }
     }
 
@@ -323,6 +336,7 @@
         ProductoUpdate.Existencia = ProductoUpdate.Existencia + Cantidad;
         ProductosList.ElementAt(detalleRemover.ProductoId - 1).Existencia = ProductoUpdate.Existencia;
         Entradas.EntradasDetalle.Remove(detalleRemover);
+        await httpClient.DeleteAsync($"api/Entradas/DeleteEntradasDetalle/{detalleRemover.DetalleId}");
         CalcularPesoTotal();
 
     }

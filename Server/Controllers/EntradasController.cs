@@ -119,6 +119,24 @@ namespace Abraham_API1_P2.Server.Controllers
             return NoContent();
         }
 
+        [HttpDelete("DeleteEntradasDetalle/{id}")]
+        public async Task<IActionResult> DeleteEntradasDetalle(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest();
+            }
+            var Detalle = await _context.EntradasDetalle.FirstOrDefaultAsync(td => td.DetalleId == id);
+            if (Detalle is null)
+            {
+                return NotFound();
+            }
+            _context.EntradasDetalle.Remove(Detalle);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
         private bool EntradasExists(int id)
         {
             return (_context.Entrada?.Any(e => e.EntradaId == id)).GetValueOrDefault();
