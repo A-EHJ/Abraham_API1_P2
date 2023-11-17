@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Abraham_API1_P2.Server.DAL;
+using Abraham_API1_P2.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Abraham_API1_P2.Server.DAL;
-using Abraham_API1_P2.Shared.Models;
 
 namespace Abraham_API1_P2.Server.Controllers
 {
@@ -25,10 +20,10 @@ namespace Abraham_API1_P2.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EntradasDetalle>>> GetEntradasDetalle()
         {
-          if (_context.EntradasDetalle == null)
-          {
-              return NotFound();
-          }
+            if (_context.EntradasDetalle == null)
+            {
+                return NotFound();
+            }
             return await _context.EntradasDetalle.ToListAsync();
         }
 
@@ -36,10 +31,10 @@ namespace Abraham_API1_P2.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<EntradasDetalle>> GetEntradasDetalle(int id)
         {
-          if (_context.EntradasDetalle == null)
-          {
-              return NotFound();
-          }
+            if (_context.EntradasDetalle == null)
+            {
+                return NotFound();
+            }
             var entradasDetalle = await _context.EntradasDetalle.FindAsync(id);
 
             if (entradasDetalle == null)
@@ -86,10 +81,10 @@ namespace Abraham_API1_P2.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<EntradasDetalle>> PostEntradasDetalle(EntradasDetalle entradasDetalle)
         {
-          if (_context.EntradasDetalle == null)
-          {
-              return Problem("Entity set 'Context.EntradasDetalle'  is null.");
-          }
+            if (_context.EntradasDetalle == null)
+            {
+                return Problem("Entity set 'Context.EntradasDetalle'  is null.");
+            }
             _context.EntradasDetalle.Add(entradasDetalle);
             await _context.SaveChangesAsync();
 

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Abraham_API1_P2.Server.DAL;
+using Abraham_API1_P2.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Abraham_API1_P2.Server.DAL;
-using Abraham_API1_P2.Shared.Models;
 
 namespace Abraham_API1_P2.Server.Controllers
 {
@@ -25,10 +20,10 @@ namespace Abraham_API1_P2.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Productos>>> GetProductos()
         {
-          if (_context.Productos == null)
-          {
-              return NotFound();
-          }
+            if (_context.Productos == null)
+            {
+                return NotFound();
+            }
             return await _context.Productos.ToListAsync();
         }
 
@@ -36,10 +31,10 @@ namespace Abraham_API1_P2.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Productos>> GetProductos(int id)
         {
-          if (_context.Productos == null)
-          {
-              return NotFound();
-          }
+            if (_context.Productos == null)
+            {
+                return NotFound();
+            }
             var productos = await _context.Productos.FindAsync(id);
 
             if (productos == null)

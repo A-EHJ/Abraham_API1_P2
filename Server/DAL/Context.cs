@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Abraham_API1_P2.Shared.Models;
+﻿using Abraham_API1_P2.Shared.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Abraham_API1_P2.Server.DAL
 {

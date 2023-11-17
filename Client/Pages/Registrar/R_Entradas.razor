@@ -338,7 +338,6 @@
         Entradas.EntradasDetalle.Remove(detalleRemover);
         await httpClient.DeleteAsync($"api/Entradas/DeleteEntradasDetalle/{detalleRemover.DetalleId}");
         CalcularPesoTotal();
-
     }
 
     public bool ValidarDetalle()

@@ -1,5 +1,4 @@
 using Abraham_API1_P2.Server.DAL;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

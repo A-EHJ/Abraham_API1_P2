@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Abraham_API1_P2.Server.DAL;
+using Abraham_API1_P2.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Abraham_API1_P2.Server.DAL;
-using Abraham_API1_P2.Shared.Models;
 
 namespace Abraham_API1_P2.Server.Controllers
 {
@@ -25,10 +20,10 @@ namespace Abraham_API1_P2.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Entradas>>> GetEntrada()
         {
-          if (_context.Entrada == null)
-          {
-              return NotFound();
-          }
+            if (_context.Entrada == null)
+            {
+                return NotFound();
+            }
             return await _context.Entrada.ToListAsync();
         }
 
@@ -36,10 +31,10 @@ namespace Abraham_API1_P2.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Entradas>> GetEntradas(int id)
         {
-          if (_context.Entrada == null)
-          {
-              return NotFound();
-          }
+            if (_context.Entrada == null)
+            {
+                return NotFound();
+            }
             var entradas = await _context.Entrada
                 .Include(e => e.EntradasDetalle)
                 .Where(e => e.EntradaId == id)
