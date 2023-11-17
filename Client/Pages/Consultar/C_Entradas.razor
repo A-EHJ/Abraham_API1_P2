@@ -162,8 +162,9 @@
     {
         Hasta = new DateTime(Hasta.Year, Hasta.Month, Hasta.Day, 23, 59, 59);
         Entradas = await httpClient.GetFromJsonAsync<List<Entradas>>($"api/Entradas");
+        Conteo = Entradas != null ? Entradas!.Count() : 0;
 
-        if (Entradas.Count() == 0)
+        if (Conteo == 0)
         {
             var mensaje = new NotificationMessage
                 {
@@ -198,7 +199,7 @@
         }
 
         Conteo = Entradas != null ? Entradas!.Count() : 0;
-        if (Entradas.Count() == 0)
+        if (Conteo == 0)
         {
             var mensaje = new NotificationMessage
                 {
