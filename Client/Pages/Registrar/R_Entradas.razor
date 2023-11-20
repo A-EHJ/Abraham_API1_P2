@@ -165,8 +165,6 @@
         {
             this.Entradas.EntradaId = EntradaId;
             await Buscar();
-            Producido = Entradas.ProductoId;
-            ProducidoCambio = true;
         }
     }
 
@@ -191,6 +189,8 @@
         {
             this.Entradas = entradaEncontrada;
             ReduccionAProductoProducido = Entradas.CantidadProducida;
+            Producido = Entradas.ProductoId;
+            ProducidoCambio = true;
             StateHasChanged();
         }
     }
