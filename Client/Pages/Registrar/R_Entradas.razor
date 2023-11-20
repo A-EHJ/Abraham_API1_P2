@@ -154,6 +154,8 @@
     int ReduccionAProductoProducido = 0;
 
     public int ProductoSeleccionadoUtilizado { get; set; }
+    int Producido = 0;
+    bool ProducidoCambio = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -163,6 +165,8 @@
         {
             this.Entradas.EntradaId = EntradaId;
             await Buscar();
+            Producido = Entradas.ProductoId;
+            ProducidoCambio = true;
         }
     }
 
@@ -196,6 +200,8 @@
         this.Entradas = new Entradas();
         ReduccionAProductoProducido = 0;
         CargarProductos();
+        Producido = 0;
+        ProducidoCambio = false;
     }
 
     public async Task Eliminar()
@@ -267,6 +273,10 @@
             return;
         }
         await VerificarProducido();
+        if (Entradas.ProductoId != Producido)
+        {
+            ProducidoCambio = true;
+        }
         using var response = await httpClient.PostAsJsonAsync("api/Entradas", Entradas);
         if (!response.IsSuccessStatusCode)
         {
@@ -293,18 +303,39 @@
 
             notificationService.Notify(mensaje);
             Entradas = EntradaDevuelto;
-            
-            for (int i = 1; i < ProductosList.Count() + 1; i++)
+            if (ProducidoCambio)
             {
-                var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == i);
+                for (int i = 1; i < ProductosList.Count() + 1; i++)
+                {
+                    var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == i);
 
-                if (ProductoUpdate.ProductoId == Entradas.ProductoId)
-                    ProductoUpdate.Existencia += Entradas.CantidadProducida - ReduccionAProductoProducido;
+                    if(ProductoUpdate.ProductoId == Producido)
+                        ProductoUpdate.Existencia -= ReduccionAProductoProducido;
 
-                if (ProductoUpdate != null)
-                    await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
+                    if (ProductoUpdate.ProductoId == Entradas.ProductoId)
+                        ProductoUpdate.Existencia += Entradas.CantidadProducida;
+
+                    if (ProductoUpdate != null)
+                        await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
+                }
+                StateHasChanged();
+
             }
-            StateHasChanged();
+            else
+            {
+                for (int i = 1; i < ProductosList.Count() + 1; i++)
+                {
+                    var ProductoUpdate = ProductosList.FirstOrDefault(p => p.ProductoId == i);
+
+                    if (ProductoUpdate.ProductoId == Entradas.ProductoId)
+                        ProductoUpdate.Existencia += Entradas.CantidadProducida - ReduccionAProductoProducido;
+
+                    if (ProductoUpdate != null)
+                        await httpClient.PutAsJsonAsync($"api/Productos/{i}", ProductoUpdate);
+                }
+                StateHasChanged();
+            }
+
         }
     }
 
